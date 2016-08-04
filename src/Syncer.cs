@@ -35,8 +35,6 @@ namespace Syncer
                 var types = job.Element("fileTypes").Elements("type").Select(x => x.Value).ToArray();
                 foreach (string type in types)
                 {
-                    Debugger.Launch();
-
                     var watcher = new FileSystemWatcher();
                     watcher.Path = source;
                     watcher.IncludeSubdirectories = true;
