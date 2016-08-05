@@ -58,12 +58,12 @@ namespace Syncer
 
                     var directCopy = new FileSystemEventHandler((sender, e) => copy(e.FullPath));
                     var renameCopy = new RenamedEventHandler((sender, e) => copy(e.FullPath));
-                    //var del = new FileSystemEventHandler((sender, e)
-                    //    => File.Delete(Path.Combine(target, e.FullPath.Substring(e.FullPath.IndexOf(source) + source.Length))));
+                    var del = new FileSystemEventHandler((sender, e)
+                        => File.Delete(Path.Combine(target, e.FullPath.Substring(e.FullPath.IndexOf(source) + source.Length))));
 
                     watcher.Changed += directCopy;
                     watcher.Created += directCopy;
-                    //watcher.Deleted += del;
+                    watcher.Deleted += del;
                     watcher.Renamed += renameCopy;
 
                     watchers.Add(watcher);
