@@ -47,11 +47,11 @@ namespace Syncer
                         var targetFullPath = Path.Combine(target, targetRelPath);
                         try
                         {
-                            File.Copy(fullPath, targetFullPath);
+                            File.Copy(fullPath, targetFullPath, true);
                         }
                         catch (IOException e)
                         {
-                            System.Diagnostics.Debug.WriteLine(e.Message);
+                            Debug.WriteLine(e.Message);
                             EventLog.WriteEntry(e.Message + "\r\n" + e.StackTrace, EventLogEntryType.Error);
                         }
                     };
