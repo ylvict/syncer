@@ -41,17 +41,29 @@ namespace Syncer
                     watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
                     watcher.Filter = type;
 
-                    Action<string> copy = fullPath
-                        => File.Copy(fullPath, Path.Combine(target, fullPath.Substring(fullPath.IndexOf(source) + source.Length)));
+                    Action<string> copy = fullPath =>
+                    {
+                        var targetRelPath = fullPath.Substring(fullPath.IndexOf(source) + source.Length);
+                        var targetFullPath = Path.Combine(target, targetRelPath);
+                        try
+                        {
+                            File.Copy(fullPath, targetFullPath);
+                        }
+                        catch (IOException e)
+                        {
+                            System.Diagnostics.Debug.WriteLine(e.Message);
+                            EventLog.WriteEntry(e.Message + "\r\n" + e.StackTrace, EventLogEntryType.Error);
+                        }
+                    };
 
                     var directCopy = new FileSystemEventHandler((sender, e) => copy(e.FullPath));
                     var renameCopy = new RenamedEventHandler((sender, e) => copy(e.FullPath));
-                    var del = new FileSystemEventHandler((sender, e)
-                        => File.Delete(Path.Combine(target, e.FullPath.Substring(e.FullPath.IndexOf(source) + source.Length))));
+                    //var del = new FileSystemEventHandler((sender, e)
+                    //    => File.Delete(Path.Combine(target, e.FullPath.Substring(e.FullPath.IndexOf(source) + source.Length))));
 
                     watcher.Changed += directCopy;
                     watcher.Created += directCopy;
-                    watcher.Deleted += del;
+                    //watcher.Deleted += del;
                     watcher.Renamed += renameCopy;
 
                     watchers.Add(watcher);
