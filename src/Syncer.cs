@@ -49,17 +49,27 @@ namespace Syncer
                         {
                             File.Copy(fullPath, targetFullPath, true);
                         }
-                        catch (IOException e)
+                        catch (IOException ex)
                         {
-                            Debug.WriteLine(e.Message);
-                            EventLog.WriteEntry(e.Message + "\r\n" + e.StackTrace, EventLogEntryType.Error);
+                            Debug.WriteLine(ex.Message);
+                            EventLog.WriteEntry(ex.GetType().ToString() + "\r\n" + ex.Message + "\r\n" + ex.StackTrace, EventLogEntryType.Error);
                         }
                     };
 
                     var directCopy = new FileSystemEventHandler((sender, e) => copy(e.FullPath));
                     var renameCopy = new RenamedEventHandler((sender, e) => copy(e.FullPath));
-                    var del = new FileSystemEventHandler((sender, e)
-                        => File.Delete(Path.Combine(target, e.FullPath.Substring(e.FullPath.IndexOf(source) + source.Length))));
+                    var del = new FileSystemEventHandler((sender, e) =>
+                    {
+                        try
+                        {
+                            File.Delete(Path.Combine(target, e.FullPath.Substring(e.FullPath.IndexOf(source) + source.Length)));
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                            EventLog.WriteEntry(ex.GetType().ToString() + "\r\n" + ex.Message + "\r\n" + ex.StackTrace, EventLogEntryType.Error);
+                        }
+                    });
 
                     watcher.Changed += directCopy;
                     watcher.Created += directCopy;
